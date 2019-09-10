@@ -25,13 +25,13 @@
   lineinfile:
     path: /usr/src/vhost_deploy_nginx/vhost_deploy.sh
     regexp: '^adminUser'
-    line: 'adminUser="{{ customerid }}"'
+    line: 'adminUser="{{ user_name }}"'
 
 - name: Configure the customer Email in vhost_deploy.sh script
   lineinfile:
     path: /usr/src/vhost_deploy_nginx/vhost_deploy.sh
     regexp: '^adminEmail'
-    line: 'adminEmail="{{ customeradmin }}"'
+    line: 'adminEmail="{{ user_email }}"'
 
 - name: Configure the PHP version in vhost_deploy.sh script (phpfpmDaemonName)
   lineinfile:
