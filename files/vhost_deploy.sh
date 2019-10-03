@@ -189,7 +189,7 @@ server {
 
   location / {
     # try to serve file directly, fallback to index.php
-    try_files $uri /index.php$is_args$args;
+    try_files \$uri /index.php\$is_args\$args;
   }
 
   # Optimized env for Symphony
