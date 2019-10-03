@@ -40,68 +40,64 @@ WHOISIT=`whoami`
 # Check if the FQDN length is not too long
 # Limitation on 32 chars for the unix username
 function checkLength {
-	futureUser=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
-	if [ ${#futureUser} -ge 32 ]
-	then
-		return 1
-	fi
+  futureUser=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
+  if [ ${#futureUser} -ge 32 ]
+  then
+    return 1
+  fi
 }
 
 # Just check if the vhost folder exists or not
 function checkFolder {
-	if [ -d ${sitesPathPrefix}/$1/$2 ]
-	then
-		return 1
-	fi
+  if [ -d ${sitesPathPrefix}/$1/$2 ]
+  then
+    return 1
+  fi
 }
 
 # Generate a password a create a system user
 function addSysUser {
-	newpass=""
-	ranlist1="BCDFGHJKLMNPQRSTVWXZ"
-	ranlist2="bcdfghjklmnpqrstvwxz"
-	ranlist3="aeiou"
-	ranlist4="0123456789"
-	passChar1=$(echo ${ranlist1:$(($RANDOM%${#ranlist1})):1})
-	passChar2=$(echo ${ranlist3:$(($RANDOM%${#ranlist3})):1})
-	passChar3=$(echo ${ranlist2:$(($RANDOM%${#ranlist2})):1})
-	passChar4=$(echo ${ranlist3:$(($RANDOM%${#ranlist3})):1})
-	passChar5=$(echo ${ranlist4:$(($RANDOM%${#ranlist4})):1})
-	passChar6=$(echo ${ranlist4:$(($RANDOM%${#ranlist4})):1})
-	passChar7=$(echo ${ranlist4:$(($RANDOM%${#ranlist4})):1})
-	passChar8=$(echo ${ranlist4:$(($RANDOM%${#ranlist4})):1})
-	newpass=$passChar1$passChar2$passChar3$passChar4!$passChar5$passChar6$passChar7$passChar8
-	user=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
-		
-	useradd -M --home-dir ${sitesPathPrefix}/$1/$2 -s ${ftpShellPath} $user
-	echo $user:$newpass | chpasswd
-	echo "+-----------------------------------+"
-	echo "|       FTP and/or SSH Login        |"
-	echo "+-----------------------------------+"
-	echo "UserName : $user"
-	echo "Password : $newpass"
-	echo "+-----------------------------------+"
+  newpass=""
+  ranlist1="BCDFGHJKLMNPQRSTVWXZ"
+  ranlist2="bcdfghjklmnpqrstvwxz"
+  ranlist3="aeiou"
+  ranlist4="0123456789"
+  passChar1=$(echo ${ranlist1:$(($RANDOM%${#ranlist1})):1})
+  passChar2=$(echo ${ranlist3:$(($RANDOM%${#ranlist3})):1})
+  passChar3=$(echo ${ranlist2:$(($RANDOM%${#ranlist2})):1})
+  passChar4=$(echo ${ranlist3:$(($RANDOM%${#ranlist3})):1})
+  passChar5=$(echo ${ranlist4:$(($RANDOM%${#ranlist4})):1})
+  passChar6=$(echo ${ranlist4:$(($RANDOM%${#ranlist4})):1})
+  passChar7=$(echo ${ranlist4:$(($RANDOM%${#ranlist4})):1})
+  passChar8=$(echo ${ranlist4:$(($RANDOM%${#ranlist4})):1})
+  newpass=$passChar1$passChar2$passChar3$passChar4!$passChar5$passChar6$passChar7$passChar8
+  user=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
+
+  useradd -M --home-dir ${sitesPathPrefix}/$1/$2 -s ${ftpShellPath} $user
+  echo $user:$newpass | chpasswd
+  echo "+-----------------------------------+"
+  echo "|       FTP and/or SSH Login        |"
+  echo "+-----------------------------------+"
+  echo "UserName : $user"
+  echo "Password : $newpass"
+  echo "+-----------------------------------+"
 }
 
 # Delete system user
 function deleteSysUser {
-	#user=$(echo $2.$1 | cut -c -15)
-	user=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
-	userdel $user
+  user=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
+  userdel $user
 }
 
 # Create vhost folders with the good rights
 function createFolders {
-	#user=$(echo $2.$1 | cut -c -15)
-	user=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
-
-	mkdir -p ${sitesPathPrefix}/$1/$2
-	[ $? == 0 ] || return 1
-
-	chown ${adminUser}:${nginxGroup} ${sitesPathPrefix}/$1
-	chown ${user}:${user} ${sitesPathPrefix}/$1/$2
-	chmod 755 ${sitesPathPrefix}/$1
-	chmod 775 ${sitesPathPrefix}/$1/$2
+  user=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
+  mkdir -p ${sitesPathPrefix}/$1/$2
+  [ $? == 0 ] || return 1
+  chown ${adminUser}:${nginxGroup} ${sitesPathPrefix}/$1
+  chown ${user}:${user} ${sitesPathPrefix}/$1/$2
+  chmod 755 ${sitesPathPrefix}/$1
+  chmod 775 ${sitesPathPrefix}/$1/$2
 }
 
 # Create a PHP-FPM pool dedicated to this vhost
@@ -113,8 +109,8 @@ cat > ${phpfpmPoolPrefix}/$1_$2.conf << EOF
 user = $user
 group = $user
 listen = /run/php/php7.1-fpm-$1_$2.sock
-listen.owner = nginx
-listen.group = nginx
+listen.owner = www-data
+listen.group = www-data
 pm = dynamic
 pm.max_children = 10
 pm.start_servers = 2
@@ -129,26 +125,26 @@ EOF
 
 # Delete a PHP-FPM pool
 function deleteFpmPool {
-	rm -f ${phpfpmPoolPrefix}/$1_$2.conf
+  rm -f ${phpfpmPoolPrefix}/$1_$2.conf
 }
 
 # Kill the processus lanched by a system user (ex : FTP Session)
 function stopUserProcesses {
-	user=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
-	killall -user $user
+  user=$2$(echo $1 | tr -d '-' | tr -d '.' | cut -c -13)
+  killall -user $user
 }
 
 # Delete Nginx vhost configuration
 function deleteConfig {
-	rm -rf ${nginxConfPrefix}/conf.d/$1_$2*.conf
-	[ $? == 0 ] || return 1
-	# reload nginx
-	rm -rf /var/log/nginx/$1_$2_error.log*
-	[ $? == 0 ] || return 1
-	rm -rf /var/log/nginx/$1_$2_access.log*
-	[ $? == 0 ] || return 1
-	# empty folder may be removed also
-	return 0
+  rm -rf ${nginxConfPrefix}/conf.d/$1_$2*.conf
+  [ $? == 0 ] || return 1
+  # reload nginx
+  rm -rf /var/log/nginx/$1_$2_error.log*
+  [ $? == 0 ] || return 1
+  rm -rf /var/log/nginx/$1_$2_access.log*
+  [ $? == 0 ] || return 1
+  # empty folder may be removed also
+  return 0
 }
 
 # Create the nginx vhost configuration
@@ -249,60 +245,60 @@ EOF
 }
 
 case $1 in
-        create)
-			if [[ -n $2 && -n $3 ]]
-			then
-					checkLength $2 $3
-					[ $? != 0 ] && echo "La combinaison du nom de domaine et du sous-domaine sont trop longs. Vous pouvez indiquer un sous-domaine plus petit et modifier ensuite le vhost, ou trouver un sous-domaine plus court." && exit 1
-					#printf "Check Folder\n"
-					checkFolder $2 $3
-					[ $? != 0 ] && echo "Le dossier du domaine $3.$2 existe déjà." && exit 1
-					#printf "Add System User\n"
-					addSysUser $2 $3
-					#printf "Create Folder\n"
-					createFolders $2 $3
-					#printf "Create PHP-FPM Conf\n"
-					createFpmPool $2 $3
-					#printf "PHP-FPM Reload\n"
-					systemctl reload ${phpfpmDaemonName}
-					#printf "Create Nginx Conf\n"
-					createNginxConf $2 $3
-					#printf "Nginx Reload\n"
-					systemctl reload nginx
-					exit 0
-			else
-				echo "Erreur : Vous devez indiquer un nom de domaine et un sous domaine."
-				exit 1
-			fi
-        ;;
+  create)
+    if [[ -n $2 && -n $3 ]]
+    then
+      checkLength $2 $3
+      [ $? != 0 ] && echo "La combinaison du nom de domaine et du sous-domaine sont trop longs. Vous pouvez indiquer un sous-domaine plus petit et modifier ensuite le vhost, ou trouver un sous-domaine plus court." && exit 1
+      #printf "Check Folder\n"
+      checkFolder $2 $3
+      [ $? != 0 ] && echo "Le dossier du domaine $3.$2 existe déjà." && exit 1
+      #printf "Add System User\n"
+      addSysUser $2 $3
+      #printf "Create Folder\n"
+      createFolders $2 $3
+      #printf "Create PHP-FPM Conf\n"
+      createFpmPool $2 $3
+      #printf "PHP-FPM Reload\n"
+      systemctl reload ${phpfpmDaemonName}
+      #printf "Create Nginx Conf\n"
+      createNginxConf $2 $3
+      #printf "Nginx Reload\n"
+      systemctl reload nginx
+      exit 0
+    else
+      echo "Erreur : Vous devez indiquer un nom de domaine et un sous domaine."
+      exit 1
+    fi
+  ;;
 
-		delete)
-			if [[ -n $2 && -n $3 ]]
-			then
-					#printf "Check Folder\n"
-					checkFolder $2 $3
-					[ $? != 1 ] && echo "Le domaine $3.$2 n'existe pas." && exit 1
-					#printf "Delete Config\n"
-					deleteConfig $2 $3
-					#printf "Delete PHP-FPM Pool\n"
-					deleteFpmPool $2 $3
-					#printf "PHP-FPM Reload\n"
-					systemctl reload ${phpfpmDaemonName}
-					#printf "killing user processes\n"
-					stopUserProcesses $2 $3
-					#printf "Delete User\n"
-					deleteSysUser $2 $3
-					#printf "Nginx Reload\n"
-					systemctl reload nginx
-					exit 0
-			else
-				echo "Erreur : Vous devez indiquer un nom de domaine et un sous domaine."
-				exit 1
-			fi
-		;;
-		
-        *)
-		echo "Usage : $0 create|delete <nom de domaine> <sous-domaine>"
-		exit 1
-        ;;
+  delete)
+    if [[ -n $2 && -n $3 ]]
+    then
+      #printf "Check Folder\n"
+      checkFolder $2 $3
+      [ $? != 1 ] && echo "Le domaine $3.$2 n'existe pas." && exit 1
+      #printf "Delete Config\n"
+      deleteConfig $2 $3
+      #printf "Delete PHP-FPM Pool\n"
+      deleteFpmPool $2 $3
+      #printf "PHP-FPM Reload\n"
+      systemctl reload ${phpfpmDaemonName}
+      #printf "killing user processes\n"
+      stopUserProcesses $2 $3
+      #printf "Delete User\n"
+      deleteSysUser $2 $3
+      #printf "Nginx Reload\n"
+      systemctl reload nginx
+      exit 0
+    else
+      echo "Erreur : Vous devez indiquer un nom de domaine et un sous domaine."
+      exit 1
+    fi
+  ;;
+    
+  *)
+    echo "Usage : $0 create|delete <nom de domaine> <sous-domaine>"
+    exit 1
+  ;;
 esac
