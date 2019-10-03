@@ -211,8 +211,8 @@ server {
     # Otherwise, PHP's OPcache may not properly detect changes to
     # your PHP files (see https://github.com/zendtech/ZendOptimizerPlus/issues/126
     # for more information).
-    fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-    fastcgi_param DOCUMENT_ROOT $realpath_root;
+    fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
+    fastcgi_param DOCUMENT_ROOT \$realpath_root;
 
     # Prevents URIs that include the front controller. This will 404:
     # http://domain.tld/index.php/some-path
