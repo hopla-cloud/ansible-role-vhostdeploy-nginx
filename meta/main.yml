@@ -1,7 +1,7 @@
 galaxy_info:
   role_name: vhostdeploy_nginx
   author: hoplacloud
-  description: Hopla.cloud role for ansible to deploy Nginx and PHP (FPM)
+  description: Hopla.cloud role for ansible to deploy vhost_deploy script for hoplacloud.nginx_php role
   company: hopla.cloud
 
   license: GPLv3
@@ -19,6 +19,4 @@ galaxy_info:
     - php
     - fpm
 
-dependencies:
-    - hoplacloud.nginx_php
-    - hoplacloud.proftpd
+dependencies: []
