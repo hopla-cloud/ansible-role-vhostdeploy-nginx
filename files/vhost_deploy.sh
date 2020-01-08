@@ -108,7 +108,7 @@ cat > ${phpfpmPoolPrefix}/$1_$2.conf << EOF
 [$1_$2]
 user = $user
 group = $user
-listen = /run/php/php7.1-fpm-$1_$2.sock
+listen = /run/php/${phpfpmDaemonName}-$1_$2.sock
 listen.owner = www-data
 listen.group = www-data
 pm = dynamic
@@ -190,7 +190,7 @@ server {
 
   # Optimized env for Symphony
   location ~ ^/index\.php(/|$) {
-    fastcgi_pass unix:/var/run/php/php7.2-fpm-$1_$2.sock;
+    fastcgi_pass unix:/var/run/php/${phpfpmDaemonName}-$1_$2.sock;
 
     fastcgi_split_path_info ^(.+\.php)(/.*)$;
     include fastcgi_params;
@@ -296,7 +296,7 @@ case $1 in
       exit 1
     fi
   ;;
-    
+
   *)
     echo "Usage : $0 create|delete <nom de domaine> <sous-domaine>"
     exit 1
