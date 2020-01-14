@@ -1,1 +1,1 @@
-Role move to [hoplacloud.nginxe-php](https://github.com/hopla-cloud/ansible-role-nginx-php)
+Role move to [hoplacloud.nginx-php](https://github.com/hopla-cloud/ansible-role-nginx-php)
